@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TradeMart B2B - Wholesale Marketplace</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            tealbrand: {
+              600: '#0d9488',
+              700: '#0f766e',
+            },
+            whatsapp: '#25D366'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 pb-20 select-none">
+
+  <!-- ROLE SELECTION MODAL / OVERLAY (Shown on launch or switch) -->
+  <div id="roleModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 transform transition-all relative">
+      <button onclick="setRole('BUYER')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold p-1.5" title="Close">✕</button>
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl font-extrabold shadow-inner">
+          🏭
+        </div>
+        <h2 class="text-2xl font-extrabold text-slate-900">Choose Your Role</h2>
+        <p class="text-sm text-slate-500 mt-1">Welcome to TradeMart B2B Wholesale. Select your preferred mode to continue:</p>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Role 1: Buyer -->
+        <button onclick="setRole('BUYER')" class="w-full text-left p-4 rounded-2xl border-2 border-blue-600 bg-blue-50/60 hover:bg-blue-100/70 transition flex items-start gap-4 group">
+          <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-2xl flex-shrink-0 shadow-md">
+            🛒
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-900 text-base">I am a Buyer (Retailer)</span>
+              <span class="text-xs bg-blue-200 text-blue-800 font-bold px-2 py-0.5 rounded-full">Retailers</span>
+            </div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">Find verified factory wholesalers, compare MOQs, request samples & order via direct WhatsApp invoices.</p>
+          </div>
+        </button>
+
+        <!-- Role 2: Seller -->
+        <button onclick="setRole('SELLER')" class="w-full text-left p-4 rounded-2xl border-2 border-teal-600 bg-teal-50/60 hover:bg-teal-100/70 transition flex items-start gap-4 group">
+          <div class="w-12 h-12 rounded-xl bg-teal-700 text-white flex items-center justify-center text-2xl flex-shrink-0 shadow-md">
+            🏭
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-900 text-base">I am a Seller (Wholesaler)</span>
+              <span class="text-xs bg-teal-200 text-teal-800 font-bold px-2 py-0.5 rounded-full">Manufacturers</span>
+            </div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">Upload products with MOQs & tiered slab rates. Generate instant QR digital storefront & get WhatsApp inquiries.</p>
+          </div>
+        </button>
+      </div>
+
+      <div class="mt-6 text-center">
+        <p class="text-xs text-slate-400">You can switch roles anytime using the top navigation pill.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP APP HEADER & GLOBAL ROLE SWITCHER -->
+  <header class="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm px-4 py-3">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-900 to-blue-600 flex items-center justify-center text-white font-black text-lg shadow-md">
+          TM
+        </div>
+        <div>
+          <h1 class="text-base font-extrabold tracking-tight text-slate-900 leading-none">TradeMart <span class="text-blue-600">B2B</span></h1>
+          <span class="text-[10px] text-slate-500 font-medium">Wholesale Marketplace</span>
+        </div>
+      </div>
+
+      <!-- Quick Role Toggle Pill -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-full border border-slate-200 text-xs font-bold">
+        <button id="btnRoleBuyer" onclick="setRole('BUYER')" class="px-3 py-1.5 rounded-full transition flex items-center gap-1.5 bg-blue-600 text-white shadow-sm">
+          <span>🛒</span> <span>Buyer</span>
+        </button>
+        <button id="btnRoleSeller" onclick="setRole('SELLER')" class="px-3 py-1.5 rounded-full transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
+          <span>🏭</span> <span>Seller</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-4xl mx-auto px-4 pt-4">
+
+    <!-- ==================== BUYER VIEW ==================== -->
+    <div id="buyerView" class="space-y-5">
+      <!-- Search & Location Bar -->
+      <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <div class="flex items-center gap-2">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-3 flex items-center text-slate-400">🔍</span>
+            <input type="text" id="searchInput" oninput="renderBuyerCatalog()" placeholder="Search products, chargers, apparel..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div class="w-36">
+            <select id="locationFilter" onchange="renderBuyerCatalog()" class="w-full py-2 px-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="All">📍 All Cities</option>
+              <option value="Delhi">📍 Delhi</option>
+              <option value="Mumbai">📍 Mumbai</option>
+              <option value="Guwahati">📍 Guwahati</option>
+              <option value="Surat">📍 Surat</option>
+              <option value="Bengaluru">📍 Bengaluru</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Category Scroll Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar text-xs font-semibold pt-1">
+          <button onclick="setCategoryFilter('All')" class="cat-pill px-3 py-1.5 rounded-lg whitespace-nowrap bg-blue-600 text-white" data-cat="All">All Categories</button>
+          <button onclick="setCategoryFilter('Mobile Accessories')" class="cat-pill px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="Mobile Accessories">Mobile Accessories</button>
+          <button onclick="setCategoryFilter('Clothes & Fashion')" class="cat-pill px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="Clothes & Fashion">Clothes & Fashion</button>
+          <button onclick="setCategoryFilter('Shoes & Footwear')" class="cat-pill px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="Shoes & Footwear">Shoes & Footwear</button>
+          <button onclick="setCategoryFilter('Cosmetics & Personal Care')" class="cat-pill px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="Cosmetics & Personal Care">Cosmetics</button>
+          <button onclick="setCategoryFilter('Home & Kitchen Items')" class="cat-pill px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="Home & Kitchen Items">Home & Kitchen</button>
+        </div>
+      </div>
+
+      <!-- Quick RFQ Banner -->
+      <div class="bg-gradient-to-r from-blue-900 to-indigo-800 rounded-2xl p-4 text-white shadow-md flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-bold bg-amber-400 text-slate-900 px-2 py-0.5 rounded-full uppercase tracking-wider">Buyer RFQ</span>
+          <h3 class="text-sm font-extrabold mt-1">Can't find what you need in wholesale?</h3>
+          <p class="text-xs text-blue-200 mt-0.5">Post requirement directly to 100+ verified local manufacturers.</p>
+        </div>
+        <button onclick="openRfqModal()" class="px-3 py-2 bg-white text-blue-900 text-xs font-bold rounded-xl shadow hover:bg-blue-50 transition flex-shrink-0">
+          Post Request
+        </button>
+      </div>
+
+      <!-- Catalog Header -->
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-1.5">
+          <span>Verified Wholesale Catalog</span>
+          <span id="catalogCountBadge" class="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-bold">5</span>
+        </h2>
+        <span class="text-xs text-slate-500 font-medium">Factory Direct Rates</span>
+      </div>
+
+      <!-- B2B Products Grid -->
+      <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+
+    <!-- ==================== SELLER / WHOLESALER DASHBOARD ==================== -->
+    <div id="sellerView" class="hidden space-y-6">
+
+      <!-- Store Sharing & QR Code Banner -->
+      <div class="bg-gradient-to-br from-teal-900 to-slate-900 rounded-3xl p-5 text-white shadow-lg border border-teal-800">
+        <div class="flex flex-col sm:flex-row items-center gap-5">
+          <!-- QR Code Preview -->
+          <div class="bg-white p-3 rounded-2xl shadow-md text-center flex-shrink-0">
+            <img id="storeQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://trademart.in/store/surat-textiles" alt="Store QR Code" class="w-32 h-32 rounded-lg mx-auto object-contain bg-slate-100">
+            <span class="text-[10px] text-slate-600 font-bold block mt-1">Scan for Wholesale Catalog</span>
+          </div>
+
+          <!-- Storefront Info & Actions -->
+          <div class="flex-1 text-center sm:text-left space-y-2">
+            <div class="inline-flex items-center gap-1.5 bg-teal-500/20 text-teal-300 text-xs font-bold px-2.5 py-1 rounded-full border border-teal-500/30">
+              <span>🏭 Verified Wholesaler Store</span>
+            </div>
+            <h2 id="displayShopName" class="text-xl font-extrabold tracking-tight">Surat Global Textiles Ltd</h2>
+            <p class="text-xs text-teal-200 leading-relaxed">Location: <span id="displayShopCity">Surat</span> • WhatsApp: <span id="displayShopPhone">+91 9811223344</span></p>
+
+            <div class="bg-teal-950/80 p-2.5 rounded-xl border border-teal-700/60 flex items-center justify-between text-xs text-teal-200 font-mono">
+              <span id="displayStoreUrl" class="truncate pr-2">trademart.in/store/surat-textiles</span>
+              <button onclick="copyStoreUrl()" class="px-2.5 py-1 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-sans font-bold text-[11px] flex-shrink-0">Copy</button>
+            </div>
+
+            <div class="pt-2 flex flex-wrap gap-2 justify-center sm:justify-start">
+              <button onclick="shareStoreWhatsApp()" class="px-4 py-2 bg-whatsapp hover:bg-green-600 text-white font-bold text-xs rounded-xl shadow flex items-center gap-1.5 transition">
+                <span>💬</span> <span>Share Store on WhatsApp</span>
+              </button>
+              <button onclick="document.getElementById('productUploadForm').scrollIntoView({behavior: 'smooth'})" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/20">
+                + Add Product
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCT UPLOAD FORM -->
+      <div id="productUploadForm" class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-sm">📦</span>
+            <div>
+              <h3 id="formTitle" class="text-base font-extrabold text-slate-900">Upload New B2B Product</h3>
+              <p class="text-xs text-slate-500">Add to your wholesale catalog with MOQs & tiered slab discounts.</p>
+            </div>
+          </div>
+          <button id="cancelEditBtn" onclick="resetProductForm()" class="hidden text-xs text-red-600 font-bold hover:underline">Cancel Edit</button>
+        </div>
+
+        <form id="newProductForm" onsubmit="handleProductSubmit(event)" class="space-y-4">
+          <input type="hidden" id="editProductId" value="">
+
+          <!-- Image Upload & Preview -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Product Image (File Upload or Instant Preview)</label>
+            <div class="flex items-center gap-4">
+              <div id="imagePreviewContainer" class="w-24 h-24 rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
+                <img id="imgPreview" src="" alt="Preview" class="hidden w-full h-full object-cover">
+                <span id="imgPlaceholder" class="text-xs text-slate-400 text-center px-1 font-medium">Upload Image</span>
+              </div>
+              <div class="flex-1 space-y-2">
+                <input type="file" id="productImageFile" accept="image/*" onchange="handleImageFileChange(event)" class="text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer">
+                <p class="text-[11px] text-slate-400">Or select a sample B2B product image:</p>
+                <div class="flex gap-1.5 overflow-x-auto hide-scrollbar">
+                  <button type="button" onclick="selectPresetImage('https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&auto=format&fit=crop&q=80')" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-semibold hover:bg-slate-200">Charger</button>
+                  <button type="button" onclick="selectPresetImage('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80')" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-semibold hover:bg-slate-200">T-Shirt</button>
+                  <button type="button" onclick="selectPresetImage('https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80')" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-semibold hover:bg-slate-200">Sneakers</button>
+                  <button type="button" onclick="selectPresetImage('https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&auto=format&fit=crop&q=80')" class="px-2 py-1 bg-slate-100 rounded text-[10px] font-semibold hover:bg-slate-200">Flask</button>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="productImageUrl" value="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Product Title *</label>
+              <input type="text" id="productName" required placeholder="e.g. 65W GaN Fast Charger Adapters" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Category *</label>
+              <select id="productCategory" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 font-medium">
+                <option value="Mobile Accessories">Mobile Accessories</option>
+                <option value="Clothes & Fashion">Clothes & Fashion</option>
+                <option value="Shoes & Footwear">Shoes & Footwear</option>
+                <option value="Cosmetics & Personal Care">Cosmetics & Personal Care</option>
+                <option value="Home & Kitchen Items">Home & Kitchen Items</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Base Price / Piece (₹) *</label>
+              <input type="number" id="productPrice" required min="1" step="0.5" placeholder="₹150" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Minimum Order Qty (MOQ) *</label>
+              <input type="number" id="productMoq" required min="1" placeholder="50 pcs" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+            </div>
+          </div>
+
+          <!-- Slab Tiered Pricing Toggle -->
+          <div class="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/80 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🏷️</span>
+                <div>
+                  <span class="text-xs font-bold text-amber-900 block">Enable 100+ Pieces Slab Pricing</span>
+                  <span class="text-[11px] text-amber-700">Attract larger bulk orders with automatic volume discount.</span>
+                </div>
+              </div>
+              <input type="checkbox" id="enableSlabPricing" onchange="toggleSlabInput()" class="w-5 h-5 accent-amber-600 rounded cursor-pointer">
+            </div>
+
+            <div id="slabInputContainer" class="hidden pt-2 border-t border-amber-200/60">
+              <label class="block text-xs font-bold text-amber-900 mb-1">100+ Pcs Discounted Rate (₹ / piece)</label>
+              <input type="number" id="productSlabPrice" min="1" step="0.5" placeholder="e.g. ₹130 (below base rate)" class="w-full px-3 py-2 bg-white border border-amber-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">City / Location *</label>
+              <input type="text" id="sellerCity" required placeholder="Surat, Delhi, etc." value="Surat" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Wholesale Shop Name *</label>
+              <input type="text" id="sellerShopName" required placeholder="Apex Wholesale Ltd" value="Surat Global Textiles Ltd" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">WhatsApp Number *</label>
+              <input type="tel" id="sellerPhone" required placeholder="919811223344" value="919811223344" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500">
+            </div>
+          </div>
+
+          <button type="submit" id="submitProductBtn" class="w-full py-3 bg-teal-700 hover:bg-teal-800 text-white font-extrabold text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2">
+            <span>➕</span> <span>Publish Wholesale Product</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- MY UPLOADED PRODUCTS LIST -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900">My Uploaded Products (<span id="myProductsCount">0</span>)</h3>
+          <span class="text-xs text-slate-500 font-medium">Manage Wholesale Catalog</span>
+        </div>
+        <div id="myProductsList" class="space-y-3">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== RFQ NOTICEBOARD TAB ==================== -->
+    <div id="rfqView" class="hidden space-y-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-extrabold text-slate-900">Buyer RFQ Noticeboard</h2>
+          <p class="text-xs text-slate-500">Live wholesale purchase requests posted by regional retailers.</p>
+        </div>
+        <button onclick="openRfqModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow">
+          + Post Requirement
+        </button>
+      </div>
+
+      <div id="rfqNoticeboardList" class="space-y-3">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- PRODUCT DETAIL & ORDER MODAL -->
+  <div id="detailModal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 shadow-2xl border border-slate-100 my-8">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="text-base font-extrabold text-slate-900">Product Wholesale Details</h3>
+        <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold p-1">✕</button>
+      </div>
+
+      <div class="mt-4 space-y-4 max-h-[75vh] overflow-y-auto pr-1">
+        <!-- Image & Badges -->
+        <div class="relative h-48 rounded-2xl overflow-hidden bg-slate-100">
+          <img id="modalImg" src="" alt="" class="w-full h-full object-cover">
+          <span id="modalLocationBadge" class="absolute top-2.5 right-2.5 bg-white/95 px-2.5 py-1 rounded-lg text-xs font-bold shadow text-slate-800">📍 Delhi</span>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between">
+            <span id="modalCategory" class="text-xs text-blue-600 font-bold uppercase tracking-wider">Mobile Accessories</span>
+            <span id="modalVerified" class="text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">✓ Verified Wholesaler</span>
+          </div>
+          <h2 id="modalTitle" class="text-lg font-extrabold text-slate-900 mt-1 leading-snug">Product Title</h2>
+          <p id="modalShop" class="text-xs text-slate-500 mt-0.5">Shop Name</p>
+        </div>
+
+        <!-- Mode Toggle: Bulk vs Sample -->
+        <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-2xl">
+          <button id="btnBulkMode" onclick="setOrderMode('BULK')" class="py-2 text-xs font-bold rounded-xl transition bg-white text-blue-700 shadow-sm">
+            🏭 Regular Bulk Order
+          </button>
+          <button id="btnSampleMode" onclick="setOrderMode('SAMPLE')" class="py-2 text-xs font-bold rounded-xl transition text-slate-600 hover:text-slate-900">
+            📦 Request Sample Batch
+          </button>
+        </div>
+
+        <!-- Rates Info -->
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs space-y-1.5">
+          <div class="flex justify-between">
+            <span class="text-slate-500">Tier 1 Rate (<span id="modalMoqText">MOQ 50</span> - 99 pcs):</span>
+            <span id="modalBaseRate" class="font-extrabold text-blue-700">₹180 / pc</span>
+          </div>
+          <div id="modalSlabRow" class="flex justify-between text-amber-700 font-semibold pt-1 border-t border-slate-200/60">
+            <span>Tier 2 (100+ pcs Slab):</span>
+            <span id="modalSlabRate" class="font-extrabold">₹155 / pc</span>
+          </div>
+        </div>
+
+        <!-- Quantity Selector with MOQ validation -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-bold text-slate-700">Order Quantity (Pieces)</label>
+            <span id="moqHint" class="text-[11px] font-bold text-slate-500">MOQ: 50 pcs</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200">
+              <button onclick="changeQty(-10)" class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center font-bold text-slate-700 text-sm hover:bg-slate-50">-</button>
+              <input type="number" id="orderQtyInput" oninput="calculateModalPrice()" class="w-16 text-center bg-transparent font-extrabold text-base focus:outline-none" value="50">
+              <button onclick="changeQty(10)" class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center font-bold text-slate-700 text-sm hover:bg-slate-50">+</button>
+            </div>
+            <div class="flex gap-1.5">
+              <button onclick="setQtyPreset('moq')" class="px-2.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-xs">MOQ</button>
+              <button onclick="setQtyPreset(100)" class="px-2.5 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold rounded-lg text-xs">100+ Slab</button>
+            </div>
+          </div>
+
+          <!-- Alert for MOQ violation -->
+          <div id="moqAlert" class="hidden mt-2 p-2.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+            <span>⚠️</span>
+            <span>Quantity is below the Minimum Order Quantity (<span id="alertMoqVal">50</span> pcs). Please adjust or switch to "Request Sample Batch".</span>
+          </div>
+
+          <!-- Tier slab notification -->
+          <div id="slabNotice" class="hidden mt-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 font-semibold flex items-center gap-2">
+            <span>🎉</span>
+            <span>Volume Slab Applied! You are receiving the discounted rate.</span>
+          </div>
+        </div>
+
+        <!-- Buyer Proforma Inputs -->
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+          <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Buyer Delivery Information</h4>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="buyerNameInput" placeholder="Buyer Name" value="Rajesh Kumar" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+            <input type="text" id="buyerShopInput" placeholder="Retail Firm Name" value="Kumar Retail Mart" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+          <input type="text" id="buyerCityInput" placeholder="Delivery Destination / City" value="Guwahati" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+        </div>
+
+        <!-- Estimated Bill Calculation -->
+        <div class="bg-blue-50/60 p-3.5 rounded-2xl border border-blue-100 space-y-1.5 text-xs">
+          <div class="flex justify-between text-slate-600">
+            <span>Effective Rate:</span>
+            <span id="calcEffectiveRate">₹180 / pc</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>Subtotal:</span>
+            <span id="calcSubtotal" class="font-bold text-slate-900">₹9,000</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>GST (18% B2B Est.):</span>
+            <span id="calcGst">₹1,620</span>
+          </div>
+          <div class="flex justify-between text-sm font-extrabold text-blue-900 pt-1 border-t border-blue-200">
+            <span>Estimated Total:</span>
+            <span id="calcGrandTotal">₹10,620</span>
+          </div>
+        </div>
+
+        <!-- WhatsApp Proforma Generator Action -->
+        <button id="btnSendWhatsApp" onclick="generateAndSendWhatsApp()" class="w-full py-3 bg-whatsapp hover:bg-green-600 text-white font-extrabold text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2">
+          <span>💬</span> <span>Send WhatsApp Inquiry & Proforma</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST REQUIREMENT (RFQ) MODAL -->
+  <div id="rfqModal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="text-base font-extrabold text-slate-900">Post Requirement (RFQ)</h3>
+        <button onclick="closeRfqModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold p-1">✕</button>
+      </div>
+
+      <form onsubmit="handleRfqSubmit(event)" class="mt-4 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Item Needed *</label>
+          <input type="text" id="rfqTitle" required placeholder="e.g. 500 pcs Cotton Polo T-Shirts" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Needed Quantity *</label>
+            <input type="number" id="rfqQty" required min="1" placeholder="300 pcs" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Target Price (₹/pc) *</label>
+            <input type="number" id="rfqPrice" required min="1" placeholder="₹120" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Category *</label>
+            <select id="rfqCategory" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+              <option value="Clothes & Fashion">Clothes & Fashion</option>
+              <option value="Mobile Accessories">Mobile Accessories</option>
+              <option value="Shoes & Footwear">Shoes & Footwear</option>
+              <option value="Cosmetics & Personal Care">Cosmetics</option>
+              <option value="Home & Kitchen Items">Home & Kitchen</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Delivery City *</label>
+            <input type="text" id="rfqCity" required placeholder="Guwahati" value="Guwahati" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Your Name / Firm *</label>
+            <input type="text" id="rfqBuyerName" required placeholder="Sharma Retailers" value="Sharma Retailers" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Contact Phone *</label>
+            <input type="tel" id="rfqPhone" required placeholder="919871112233" value="919871112233" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Specifications / Notes</label>
+          <textarea id="rfqNotes" rows="2" placeholder="Specific colors, sizing, or urgent delivery deadlines..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow transition">
+          📢 Broadcast to Local Wholesalers
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- FIXED BOTTOM NAVIGATION BAR -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 px-4 py-2 z-30 shadow-lg">
+    <div class="max-w-md mx-auto flex items-center justify-around text-center text-xs font-bold">
+      <button onclick="switchTab('catalog')" id="navCatalog" class="flex flex-col items-center text-blue-600 transition">
+        <span class="text-lg">🛍️</span>
+        <span class="text-[11px] mt-0.5">Catalog</span>
+      </button>
+
+      <button onclick="switchTab('rfq')" id="navRfq" class="flex flex-col items-center text-slate-500 hover:text-slate-800 transition">
+        <span class="text-lg">📢</span>
+        <span class="text-[11px] mt-0.5">RFQ Board</span>
+      </button>
+
+      <button onclick="setRole('SELLER')" id="navSeller" class="flex flex-col items-center text-slate-500 hover:text-slate-800 transition">
+        <span class="text-lg">🏭</span>
+        <span class="text-[11px] mt-0.5">My Store</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- JAVASCRIPT STATE & LOGIC -->
+  <script>
+    // 1. Initial State & Dummy Products
+    let currentRole = 'BUYER';
+    let currentCategory = 'All';
+    let activeModalProduct = null;
+    let orderMode = 'BULK'; // 'BULK' or 'SAMPLE'
+
+    let products = [
+      {
+        id: 'p-1',
+        name: 'SuperFast 65W GaN Fast Charger Adapters',
+        category: 'Mobile Accessories',
+        price: 180,
+        moq: 50,
+        hasSlab: true,
+        slabPrice: 155,
+        location: 'Delhi',
+        shopName: 'Apex Mobile Electronics Hub',
+        phone: '919876543210',
+        image: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&auto=format&fit=crop&q=80',
+        isVerified: true,
+        sampleMoq: 5,
+        isMine: false
+      },
+      {
+        id: 'p-2',
+        name: 'Pure Cotton Oversized Streetwear T-Shirts (220 GSM)',
+        category: 'Clothes & Fashion',
+        price: 160,
+        moq: 30,
+        hasSlab: true,
+        slabPrice: 135,
+        location: 'Surat',
+        shopName: 'Surat Global Textiles Ltd',
+        phone: '919811223344',
+        image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80',
+        isVerified: true,
+        sampleMoq: 5,
+        isMine: true
+      },
+      {
+        id: 'p-3',
+        name: 'Lightweight Breathable Mesh Sports Sneakers',
+        category: 'Shoes & Footwear',
+        price: 320,
+        moq: 24,
+        hasSlab: true,
+        slabPrice: 280,
+        location: 'Mumbai',
+        shopName: 'StepUp Footwear Manufacturers',
+        phone: '919822334455',
+        image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80',
+        isVerified: true,
+        sampleMoq: 4,
+        isMine: false
+      },
+      {
+        id: 'p-4',
+        name: 'Organic Pure Aloe Vera Soothing Gel (500ml Salon Tub)',
+        category: 'Cosmetics & Personal Care',
+        price: 95,
+        moq: 40,
+        hasSlab: true,
+        slabPrice: 78,
+        location: 'Bengaluru',
+        shopName: 'PureGlow Herbal Organics',
+        phone: '919833445566',
+        image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&auto=format&fit=crop&q=80',
+        isVerified: true,
+        sampleMoq: 10,
+        isMine: true
+      },
+      {
+        id: 'p-5',
+        name: 'Double-Wall Insulated Stainless Steel Flasks (750ml)',
+        category: 'Home & Kitchen Items',
+        price: 125,
+        moq: 50,
+        hasSlab: true,
+        slabPrice: 105,
+        location: 'Guwahati',
+        shopName: 'Brahmaputra Housewares Wholesale',
+        phone: '919844556677',
+        image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&auto=format&fit=crop&q=80',
+        isVerified: true,
+        sampleMoq: 6,
+        isMine: false
+      }
+    ];
+
+    let rfqs = [
+      {
+        id: 'rfq-1',
+        title: 'Need 500 pcs Cotton Polo Collared T-Shirts for Corporate Event',
+        category: 'Clothes & Fashion',
+        qty: 500,
+        targetPrice: 140,
+        location: 'Guwahati',
+        buyerName: 'Sharma Retailers',
+        phone: '919871112233',
+        notes: 'Navy blue and black colors needed within 10 days.',
+        timeAgo: '20 mins ago'
+      },
+      {
+        id: 'rfq-2',
+        title: 'Looking for 300 units 20W Type-C Braided Fast Charging Cables',
+        category: 'Mobile Accessories',
+        qty: 300,
+        targetPrice: 45,
+        location: 'Delhi',
+        buyerName: 'Verma Mobile Hub',
+        phone: '919899887766',
+        notes: 'Strictly 1m with 6-month warranty support.',
+        timeAgo: '2 hours ago'
+      }
+    ];
+
+    // 2. Role Switching Logic
+    function setRole(role) {
+      currentRole = role;
+      document.getElementById('roleModal').classList.add('hidden');
+
+      const btnBuyer = document.getElementById('btnRoleBuyer');
+      const btnSeller = document.getElementById('btnRoleSeller');
+      const buyerView = document.getElementById('buyerView');
+      const sellerView = document.getElementById('sellerView');
+      const rfqView = document.getElementById('rfqView');
+
+      if (role === 'BUYER') {
+        btnBuyer.className = "px-3 py-1.5 rounded-full transition flex items-center gap-1.5 bg-blue-600 text-white shadow-sm";
+        btnSeller.className = "px-3 py-1.5 rounded-full transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
+        buyerView.classList.remove('hidden');
+        sellerView.classList.add('hidden');
+        rfqView.classList.add('hidden');
+        updateNavIcons('catalog');
+      } else {
+        btnSeller.className = "px-3 py-1.5 rounded-full transition flex items-center gap-1.5 bg-teal-700 text-white shadow-sm";
+        btnBuyer.className = "px-3 py-1.5 rounded-full transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
+        buyerView.classList.add('hidden');
+        sellerView.classList.remove('hidden');
+        rfqView.classList.add('hidden');
+        updateNavIcons('seller');
+        renderSellerDashboard();
+      }
+    }
+
+    function switchTab(tab) {
+      const buyerView = document.getElementById('buyerView');
+      const sellerView = document.getElementById('sellerView');
+      const rfqView = document.getElementById('rfqView');
+
+      if (tab === 'catalog') {
+        setRole('BUYER');
+      } else if (tab === 'rfq') {
+        buyerView.classList.add('hidden');
+        sellerView.classList.add('hidden');
+        rfqView.classList.remove('hidden');
+        updateNavIcons('rfq');
+        renderRfqNoticeboard();
+      } else if (tab === 'seller') {
+        setRole('SELLER');
+      }
+    }
+
+    function updateNavIcons(active) {
+      document.getElementById('navCatalog').className = active === 'catalog' ? "flex flex-col items-center text-blue-600" : "flex flex-col items-center text-slate-500 hover:text-slate-800";
+      document.getElementById('navRfq').className = active === 'rfq' ? "flex flex-col items-center text-blue-600" : "flex flex-col items-center text-slate-500 hover:text-slate-800";
+      document.getElementById('navSeller').className = active === 'seller' ? "flex flex-col items-center text-teal-700" : "flex flex-col items-center text-slate-500 hover:text-slate-800";
+    }
+
+    // 3. Buyer Catalog Rendering & Filtering
+    function setCategoryFilter(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-pill').forEach(pill => {
+        if (pill.dataset.cat === cat) {
+          pill.className = "cat-pill px-3 py-1.5 rounded-lg whitespace-nowrap bg-blue-600 text-white font-bold";
+        } else {
+          pill.className = "cat-pill px-3 py-1.5 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold";
+        }
+      });
+      renderBuyerCatalog();
+    }
+
+    function renderBuyerCatalog() {
+      const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+      const city = document.getElementById('locationFilter')?.value || 'All';
+      const grid = document.getElementById('productsGrid');
+
+      const filtered = products.filter(p => {
+        const matchesQuery = p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query) || p.shopName.toLowerCase().includes(query);
+        const matchesCat = currentCategory === 'All' || p.category === currentCategory;
+        const matchesCity = city === 'All' || p.location.toLowerCase() === city.toLowerCase();
+        return matchesQuery && matchesCat && matchesCity;
+      });
+
+      document.getElementById('catalogCountBadge').innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center bg-white rounded-3xl border border-slate-200">
+            <span class="text-4xl">🔍</span>
+            <h3 class="text-base font-extrabold text-slate-800 mt-2">No wholesale items found</h3>
+            <p class="text-xs text-slate-500 mt-1">Try resetting the city or category filter.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => {
+        const slabBadge = p.hasSlab && p.slabPrice ? `
+          <div class="bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 text-right">
+            <span class="text-[11px] font-bold text-amber-900 block">₹${p.slabPrice} @ 100+ pcs</span>
+            <span class="text-[9px] font-extrabold text-amber-700 uppercase">Save ${Math.round(((p.price - p.slabPrice)/p.price)*100)}%</span>
+          </div>
+        ` : '';
+
+        return `
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition">
+            <!-- Image Area -->
+            <div class="relative h-44 bg-slate-100 cursor-pointer" onclick="openProductModal('${p.id}')">
+              <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
+              <span class="absolute top-2.5 left-2.5 bg-slate-900/80 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md">${p.category}</span>
+              <span class="absolute top-2.5 right-2.5 bg-white text-slate-800 text-[11px] font-bold px-2 py-0.5 rounded-md shadow-sm">📍 ${p.location}</span>
+              <span class="absolute bottom-0 right-0 bg-blue-900 text-white text-[11px] font-bold px-2.5 py-1 rounded-tl-xl">MOQ: ${p.moq} pcs</span>
+            </div>
+
+            <!-- Content Area -->
+            <div class="p-3.5 flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between text-xs text-slate-500">
+                  <span class="font-medium truncate max-w-[150px]">${p.shopName}</span>
+                  ${p.isVerified ? '<span class="text-[10px] bg-blue-50 text-blue-700 font-bold px-1.5 py-0.5 rounded">✓ Verified</span>' : ''}
+                </div>
+                <h3 onclick="openProductModal('${p.id}')" class="text-sm font-bold text-slate-900 mt-1 line-clamp-2 hover:text-blue-600 cursor-pointer leading-tight">
+                  ${p.name}
+                </h3>
+              </div>
+
+              <div class="mt-3">
+                <div class="flex items-end justify-between">
+                  <div>
+                    <span class="text-[10px] text-slate-500 block">Wholesale Rate</span>
+                    <span class="text-lg font-extrabold text-blue-700">₹${p.price}</span>
+                    <span class="text-xs text-slate-500">/ pc</span>
+                  </div>
+                  ${slabBadge}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 gap-2 mt-3 pt-2 border-t border-slate-100">
+                  <button onclick="requestSample('${p.id}')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
+                    Sample (${p.sampleMoq} pc)
+                  </button>
+                  <button onclick="openProductModal('${p.id}')" class="py-1.5 px-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition">
+                    Order / Inquire
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 4. Product Detail Modal & Quantity / Slab Calculations
+    function openProductModal(productId, isSample = false) {
+      activeModalProduct = products.find(p => p.id === productId);
+      if (!activeModalProduct) return;
+
+      orderMode = isSample ? 'SAMPLE' : 'BULK';
+
+      document.getElementById('modalImg').src = activeModalProduct.image;
+      document.getElementById('modalTitle').innerText = activeModalProduct.name;
+      document.getElementById('modalCategory').innerText = activeModalProduct.category;
+      document.getElementById('modalShop').innerText = `Supplier: ${activeModalProduct.shopName} (WhatsApp: +${activeModalProduct.phone})`;
+      document.getElementById('modalLocationBadge').innerText = `📍 ${activeModalProduct.location}`;
+      document.getElementById('modalMoqText').innerText = `MOQ ${activeModalProduct.moq}`;
+      document.getElementById('modalBaseRate').innerText = `₹${activeModalProduct.price} / pc`;
+
+      const slabRow = document.getElementById('modalSlabRow');
+      if (activeModalProduct.hasSlab && activeModalProduct.slabPrice) {
+        slabRow.classList.remove('hidden');
+        document.getElementById('modalSlabRate').innerText = `₹${activeModalProduct.slabPrice} / pc`;
+      } else {
+        slabRow.classList.add('hidden');
+      }
+
+      setOrderMode(orderMode);
+      document.getElementById('detailModal').classList.remove('hidden');
+    }
+
+    function requestSample(productId) {
+      openProductModal(productId, true);
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    function setOrderMode(mode) {
+      orderMode = mode;
+      const btnBulk = document.getElementById('btnBulkMode');
+      const btnSample = document.getElementById('btnSampleMode');
+      const qtyInput = document.getElementById('orderQtyInput');
+      const moqHint = document.getElementById('moqHint');
+
+      if (mode === 'SAMPLE') {
+        btnSample.className = "py-2 text-xs font-bold rounded-xl transition bg-white text-blue-700 shadow-sm";
+        btnBulk.className = "py-2 text-xs font-bold rounded-xl transition text-slate-600 hover:text-slate-900";
+        qtyInput.value = activeModalProduct.sampleMoq;
+        moqHint.innerText = `Sample Batch (${activeModalProduct.sampleMoq} pcs)`;
+      } else {
+        btnBulk.className = "py-2 text-xs font-bold rounded-xl transition bg-white text-blue-700 shadow-sm";
+        btnSample.className = "py-2 text-xs font-bold rounded-xl transition text-slate-600 hover:text-slate-900";
+        qtyInput.value = activeModalProduct.moq;
+        moqHint.innerText = `MOQ: ${activeModalProduct.moq} pcs`;
+      }
+      calculateModalPrice();
+    }
+
+    function changeQty(delta) {
+      const input = document.getElementById('orderQtyInput');
+      let val = parseInt(input.value) || 0;
+      val = Math.max(1, val + delta);
+      input.value = val;
+      calculateModalPrice();
+    }
+
+    function setQtyPreset(preset) {
+      const input = document.getElementById('orderQtyInput');
+      if (preset === 'moq') {
+        input.value = activeModalProduct.moq;
+      } else {
+        input.value = preset;
+      }
+      calculateModalPrice();
+    }
+
+    function calculateModalPrice() {
+      if (!activeModalProduct) return;
+      const qty = parseInt(document.getElementById('orderQtyInput').value) || 0;
+      const moqAlert = document.getElementById('moqAlert');
+      const slabNotice = document.getElementById('slabNotice');
+      const sendBtn = document.getElementById('btnSendWhatsApp');
+
+      const isSample = orderMode === 'SAMPLE';
+      const isBelowMoq = !isSample && qty < activeModalProduct.moq;
+
+      if (isBelowMoq) {
+        moqAlert.classList.remove('hidden');
+        document.getElementById('alertMoqVal').innerText = activeModalProduct.moq;
+        sendBtn.disabled = true;
+        sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      } else {
+        moqAlert.classList.add('hidden');
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+
+      // Check slab discount
+      const isSlabApplicable = !isSample && activeModalProduct.hasSlab && activeModalProduct.slabPrice && qty >= 100;
+      if (isSlabApplicable) {
+        slabNotice.classList.remove('hidden');
+      } else {
+        slabNotice.classList.add('hidden');
+      }
+
+      const effectiveRate = isSlabApplicable ? activeModalProduct.slabPrice : activeModalProduct.price;
+      const subtotal = effectiveRate * qty;
+      const gst = subtotal * 0.18;
+      const grandTotal = subtotal + gst;
+
+      document.getElementById('calcEffectiveRate').innerText = `₹${effectiveRate} / pc ${isSlabApplicable ? '(100+ Slab Applied)' : ''}`;
+      document.getElementById('calcSubtotal').innerText = `₹${Math.round(subtotal).toLocaleString('en-IN')}`;
+      document.getElementById('calcGst').innerText = `₹${Math.round(gst).toLocaleString('en-IN')}`;
+      document.getElementById('calcGrandTotal').innerText = `₹${Math.round(grandTotal).toLocaleString('en-IN')}`;
+    }
+
+    // 5. WhatsApp Proforma Invoice Generator
+    function generateAndSendWhatsApp() {
+      if (!activeModalProduct) return;
+      const qty = parseInt(document.getElementById('orderQtyInput').value) || 0;
+      const buyerName = document.getElementById('buyerNameInput').value.trim() || 'Retail Buyer';
+      const buyerShop = document.getElementById('buyerShopInput').value.trim() || 'Retail Store';
+      const buyerCity = document.getElementById('buyerCityInput').value.trim() || activeModalProduct.location;
+
+      const isSample = orderMode === 'SAMPLE';
+      const isSlab = !isSample && activeModalProduct.hasSlab && activeModalProduct.slabPrice && qty >= 100;
+      const effectiveRate = isSlab ? activeModalProduct.slabPrice : activeModalProduct.price;
+      const subtotal = effectiveRate * qty;
+      const gst = subtotal * 0.18;
+      const grandTotal = subtotal + gst;
+      const invoiceNo = `PI-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const message = `*🏢 B2B PROFORMA INVOICE & ORDER INQUIRY*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*Estimate Ref:* #${invoiceNo}
+*Date:* ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+
+*Wholesaler:* ${activeModalProduct.shopName} (${activeModalProduct.location})
+*Product:* ${activeModalProduct.name}
+*Category:* ${activeModalProduct.category}
+*Order Type:* ${isSample ? '📦 Sample Test Batch' : '🏭 Bulk Wholesale Order'}
+
+*QUANTITY & PRICING BREAKDOWN:*
+• Quantity: ${qty} pieces
+• Rate per piece: ₹${effectiveRate} ${isSlab ? '(Tier-2 Volume Slab Applied)' : ''}
+• Subtotal: ₹${Math.round(subtotal).toLocaleString('en-IN')}
+• GST (18% B2B Est.): ₹${Math.round(gst).toLocaleString('en-IN')}
+• *GRAND TOTAL ORDER: ₹${Math.round(grandTotal).toLocaleString('en-IN')}*
+
+*BUYER / DELIVERY DETAILS:*
+• Buyer Firm: ${buyerShop}
+• Contact Person: ${buyerName}
+• Delivery Destination: ${buyerCity}
+
+_Generated via TradeMart B2B Wholesale Marketplace_
+_Please confirm dispatch timeline & payment details._`;
+
+      const encoded = encodeURIComponent(message);
+      const cleanPhone = activeModalProduct.phone.replace(/[^0-9]/g, '');
+      const url = `https://wa.me/${cleanPhone}?text=${encoded}`;
+      window.open(url, '_blank');
+    }
+
+    // 6. Seller Dashboard & Product Management
+    function renderSellerDashboard() {
+      const myProducts = products.filter(p => p.isMine);
+      document.getElementById('myProductsCount').innerText = myProducts.length;
+      const list = document.getElementById('myProductsList');
+
+      if (myProducts.length === 0) {
+        list.innerHTML = `
+          <div class="py-8 text-center bg-white rounded-2xl border border-slate-200">
+            <span class="text-3xl">📦</span>
+            <p class="text-xs font-bold text-slate-700 mt-2">No products uploaded yet.</p>
+            <p class="text-[11px] text-slate-400">Use the form above to list your first wholesale item.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = myProducts.map(p => `
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-4">
+          <img src="${p.image}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover bg-slate-100 flex-shrink-0">
+          <div class="flex-1 min-w-0">
+            <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold">${p.category}</span>
+            <h4 class="text-xs font-bold text-slate-900 truncate mt-0.5">${p.name}</h4>
+            <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-1">
+              <span>Base: <b class="text-slate-800">₹${p.price}</b></span>
+              <span>MOQ: <b class="text-slate-800">${p.moq} pcs</b></span>
+              ${p.hasSlab ? `<span>100+ Slab: <b class="text-amber-700">₹${p.slabPrice}</b></span>` : ''}
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button onclick="editProduct('${p.id}')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Edit</button>
+            <button onclick="deleteProduct('${p.id}')" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleSlabInput() {
+      const isChecked = document.getElementById('enableSlabPricing').checked;
+      const container = document.getElementById('slabInputContainer');
+      if (isChecked) {
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
+    function handleImageFileChange(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const previewUrl = URL.createObjectURL(file);
+        document.getElementById('imgPreview').src = previewUrl;
+        document.getElementById('imgPreview').classList.remove('hidden');
+        document.getElementById('imgPlaceholder').classList.add('hidden');
+        document.getElementById('productImageUrl').value = previewUrl;
+      }
+    }
+
+    function selectPresetImage(url) {
+      document.getElementById('imgPreview').src = url;
+      document.getElementById('imgPreview').classList.remove('hidden');
+      document.getElementById('imgPlaceholder').classList.add('hidden');
+      document.getElementById('productImageUrl').value = url;
+    }
+
+    function handleProductSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editProductId').value;
+      const name = document.getElementById('productName').value.trim();
+      const category = document.getElementById('productCategory').value;
+      const price = parseFloat(document.getElementById('productPrice').value);
+      const moq = parseInt(document.getElementById('productMoq').value);
+      const hasSlab = document.getElementById('enableSlabPricing').checked;
+      const slabPrice = hasSlab ? parseFloat(document.getElementById('productSlabPrice').value) : null;
+      const location = document.getElementById('sellerCity').value.trim();
+      const shopName = document.getElementById('sellerShopName').value.trim();
+      const phone = document.getElementById('sellerPhone').value.trim();
+      const image = document.getElementById('productImageUrl').value;
+
+      if (!name || isNaN(price) || isNaN(moq) || !image) {
+        alert("Please fill all required fields!");
+        return;
+      }
+
+      if (editId) {
+        const index = products.findIndex(p => p.id === editId);
+        if (index !== -1) {
+          products[index] = { ...products[index], name, category, price, moq, hasSlab, slabPrice, location, shopName, phone, image };
+        }
+      } else {
+        const newProduct = {
+          id: `p-${Date.now()}`,
+          name,
+          category,
+          price,
+          moq,
+          hasSlab,
+          slabPrice,
+          location,
+          shopName,
+          phone,
+          image,
+          isVerified: true,
+          sampleMoq: Math.max(2, Math.floor(moq / 5)),
+          isMine: true
+        };
+        products.unshift(newProduct);
+      }
+
+      resetProductForm();
+      renderSellerDashboard();
+      renderBuyerCatalog();
+      alert("Wholesale product saved successfully!");
+    }
+
+    function editProduct(id) {
+      const p = products.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById('formTitle').innerText = "Edit Wholesale Product";
+      document.getElementById('editProductId').value = p.id;
+      document.getElementById('cancelEditBtn').classList.remove('hidden');
+      document.getElementById('submitProductBtn').innerText = "Update Product";
+
+      document.getElementById('productName').value = p.name;
+      document.getElementById('productCategory').value = p.category;
+      document.getElementById('productPrice').value = p.price;
+      document.getElementById('productMoq').value = p.moq;
+      document.getElementById('sellerCity').value = p.location;
+      document.getElementById('sellerShopName').value = p.shopName;
+      document.getElementById('sellerPhone').value = p.phone;
+
+      selectPresetImage(p.image);
+
+      const enableSlab = document.getElementById('enableSlabPricing');
+      enableSlab.checked = p.hasSlab;
+      toggleSlabInput();
+      if (p.hasSlab && p.slabPrice) {
+        document.getElementById('productSlabPrice').value = p.slabPrice;
+      }
+
+      document.getElementById('productUploadForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetProductForm() {
+      document.getElementById('newProductForm').reset();
+      document.getElementById('editProductId').value = '';
+      document.getElementById('formTitle').innerText = "Upload New B2B Product";
+      document.getElementById('submitProductBtn').innerText = "➕ Publish Wholesale Product";
+      document.getElementById('cancelEditBtn').classList.add('hidden');
+      document.getElementById('enableSlabPricing').checked = false;
+      toggleSlabInput();
+      selectPresetImage('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80');
+    }
+
+    function deleteProduct(id) {
+      if (confirm("Are you sure you want to delete this product from your wholesale catalog?")) {
+        products = products.filter(p => p.id !== id);
+        renderSellerDashboard();
+        renderBuyerCatalog();
+      }
+    }
+
+    function copyStoreUrl() {
+      const text = document.getElementById('displayStoreUrl').innerText;
+      const fullUrl = "https://" + text;
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(fullUrl).then(() => {
+          alert("Store link copied to clipboard!");
+        }).catch(() => {
+          fallbackCopy(fullUrl);
+        });
+      } else {
+        fallbackCopy(fullUrl);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        alert("Store link copied to clipboard!");
+      } catch (e) {
+        alert("Store link: " + text);
+      }
+      document.body.removeChild(ta);
+    }
+
+    function shareStoreWhatsApp() {
+      const shop = document.getElementById('displayShopName').innerText;
+      const url = "https://" + document.getElementById('displayStoreUrl').innerText;
+      const msg = `*🏭 Welcome to ${shop}'s Digital Wholesale Store!*\n\nBrowse our factory catalog, wholesale rates, and tiered slab discounts on TradeMart B2B:\n${url}\n\nContact us on WhatsApp for bulk inquiries!`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    // 7. RFQ Noticeboard Logic
+    function openRfqModal() {
+      document.getElementById('rfqModal').classList.remove('hidden');
+    }
+
+    function closeRfqModal() {
+      document.getElementById('rfqModal').classList.add('hidden');
+    }
+
+    function handleRfqSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('rfqTitle').value.trim();
+      const qty = parseInt(document.getElementById('rfqQty').value);
+      const targetPrice = parseFloat(document.getElementById('rfqPrice').value);
+      const category = document.getElementById('rfqCategory').value;
+      const location = document.getElementById('rfqCity').value.trim();
+      const buyerName = document.getElementById('rfqBuyerName').value.trim();
+      const phone = document.getElementById('rfqPhone').value.trim();
+      const notes = document.getElementById('rfqNotes').value.trim();
+
+      const newRfq = {
+        id: `rfq-${Date.now()}`,
+        title,
+        qty,
+        targetPrice,
+        category,
+        location,
+        buyerName,
+        phone,
+        notes,
+        timeAgo: 'Just now'
+      };
+
+      rfqs.unshift(newRfq);
+      closeRfqModal();
+      document.getElementById('rfqTitle').value = '';
+      switchTab('rfq');
+      alert("Your requirement has been posted to the public B2B noticeboard!");
+    }
+
+    function renderRfqNoticeboard() {
+      const list = document.getElementById('rfqNoticeboardList');
+      list.innerHTML = rfqs.map(r => `
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">${r.category}</span>
+            <span class="text-xs text-slate-400 font-medium">${r.timeAgo}</span>
+          </div>
+
+          <h3 class="text-sm font-extrabold text-slate-900 leading-snug">${r.title}</h3>
+
+          <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl text-center text-xs">
+            <div>
+              <span class="text-[10px] text-slate-400 block">Quantity</span>
+              <span class="font-bold text-slate-800">${r.qty} pcs</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 block">Target Rate</span>
+              <span class="font-bold text-blue-700">₹${r.targetPrice} / pc</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 block">Destination</span>
+              <span class="font-bold text-slate-800">📍 ${r.location}</span>
+            </div>
+          </div>
+
+          ${r.notes ? `<p class="text-xs text-slate-500 italic">"${r.notes}"</p>` : ''}
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+            <span class="text-slate-600 font-medium">Buyer: <b>${r.buyerName}</b></span>
+            <button onclick="quoteBuyer('${r.phone}', '${encodeURIComponent(r.title)}')" class="px-3 py-1.5 bg-whatsapp hover:bg-green-600 text-white font-bold rounded-lg shadow-sm flex items-center gap-1">
+              <span>💬</span> <span>Quote on WhatsApp</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function quoteBuyer(phone, encodedTitle) {
+      const title = decodeURIComponent(encodedTitle);
+      const msg = `*🏭 B2B WHOLESALER QUOTE RESPONSE*\n\nHello, I saw your requirement on TradeMart B2B noticeboard for: "${title}".\n\nWe are verified manufacturers and can supply this at competitive wholesale rates. Let's discuss pricing & dispatch!`;
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    // Resilient initialization on both DOMContentLoaded and immediate execution
+    function initApp() {
+      try {
+        renderBuyerCatalog();
+        selectPresetImage('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80');
+      } catch (e) {
+        console.error("Initialization error:", e);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>

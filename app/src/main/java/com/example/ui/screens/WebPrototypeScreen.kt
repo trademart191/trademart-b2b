@@ -65,7 +65,7 @@ fun WebPrototypeScreen(
 
           webChromeClient = WebChromeClient()
 
-          loadUrl("file:///android_asset/b2b_marketplace.html")
+          loadUrl("file:///android_asset/index.html")
         }
       },
       modifier = Modifier.fillMaxSize()
