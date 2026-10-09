@@ -1,0 +1,6 @@
+{
+  "name": "TradeMart B2B",
+  "description": "Mobile B2B Wholesale Marketplace connecting retail buyers with verified manufacturers and wholesalers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
